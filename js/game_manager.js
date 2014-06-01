@@ -68,9 +68,43 @@ GameManager.prototype.addStartTiles = function () {
 // Adds a tile in a random position
 GameManager.prototype.addRandomTile = function () {
   if (this.grid.cellsAvailable()) {
-    var value = Math.random() < 0.9 ? 2 : 4;
-    var tile = new Tile(this.grid.randomAvailableCell(), value);
-
+	var avail_cells = this.grid.availableCells();
+	var value;
+	if (avail_cells.length == 1)
+	{
+		// save me from death!
+		var x = avail_cells[0].x;
+		var y = avail_cells[0].y;
+		
+		// find all adjacent values
+		var adjacents = [];
+		if(x > 0)
+		{
+			adjacents.push(this.grid.cellContent({x: x-1, y: y}).value);
+		}
+		if(y > 0)
+		{
+			adjacents.push(this.grid.cellContent({x: x, y: y-1}).value);
+		}
+		if(x < this.grid.size - 1)
+		{
+			adjacents.push(this.grid.cellContent({x: x+1, y: y}).value);
+		}
+		if(y < this.grid.size - 1)
+		{
+			adjacents.push(this.grid.cellContent({x: x, y: y+1}).value);
+		}
+	
+		// new value will be minimun value of adjacent values
+		adjacents.sort(function(a, b){return a-b});
+		value = adjacents[0];
+	}
+	else
+	{
+		// regular turn
+		value = Math.random() < 0.9 ? 2 : 4;
+	}
+	var tile = new Tile(this.grid.randomAvailableCell(), value);
     this.grid.insertTile(tile);
   }
 };
